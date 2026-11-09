@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f4f0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Dito Mabibili">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="description" content="Create and copy a shopping caption from your Lazada, Shopee, and TikTok links.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <title>Dito Mabibili — Link Caption Maker</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #20231f;
+      background: #f5f4f0;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --muted: #73776f;
+      --line: #e6e5de;
+      --panel: #fff;
+      --brand: #315d4a;
+      --brand-dark: #244737;
+      --error: #a33932;
+    }
+
+    * { box-sizing: border-box; }
+    body { min-width: 320px; min-height: 100vh; margin: 0; }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .page { width: min(660px, calc(100% - 32px)); margin: 0 auto; padding: 46px 0 calc(32px + env(safe-area-inset-bottom)); }
+    .masthead { display: flex; align-items: center; gap: 12px; margin-bottom: 38px; }
+    .mark { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 14px; color: #fff; background: var(--brand); font-size: 19px; font-weight: 800; }
+    .brand-name { margin: 0; font-size: 14px; font-weight: 750; letter-spacing: -.02em; }
+    .brand-note { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .eyebrow { margin: 0 0 10px; color: var(--brand); font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(32px, 8vw, 48px); line-height: 1.06; letter-spacing: -.055em; }
+    .intro { max-width: 480px; margin: 13px 0 25px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+    .card { padding: clamp(19px, 5vw, 28px); border: 1px solid var(--line); border-radius: 20px; background: var(--panel); box-shadow: 0 12px 32px rgba(37, 43, 35, .045); }
+    .card-title { margin: 0; font-size: 17px; letter-spacing: -.02em; }
+    .card-hint { margin: 5px 0 22px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .field { margin-top: 17px; }
+    .field:first-of-type { margin-top: 0; }
+    .label-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+    label { color: #353a34; font-size: 13px; font-weight: 720; }
+    .platform { color: var(--muted); font-size: 11px; }
+    input { width: 100%; min-height: 48px; padding: 0 13px; border: 1px solid #dedfd8; border-radius: 10px; outline: none; color: #252923; background: #fff; font-size: 14px; transition: border-color .15s, box-shadow .15s; }
+    input::placeholder { color: #a0a39c; }
+    input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(49, 93, 74, .11); }
+    input[aria-invalid="true"] { border-color: var(--error); }
+    .field-error { min-height: 0; margin: 5px 0 0; color: var(--error); font-size: 12px; }
+    .field-error:empty { display: none; }
+    .caption-block { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
+    .caption-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 9px; }
+    .caption-heading label { font-size: 14px; }
+    .caption-hint { color: var(--muted); font-size: 11px; }
+    textarea { display: block; width: 100%; min-height: 136px; resize: vertical; padding: 14px; border: 1px solid var(--line); border-radius: 10px; color: #343a33; background: #fafaf8; font-size: 14px; line-height: 1.7; }
+    .copy-button { display: flex; width: 100%; min-height: 50px; justify-content: center; align-items: center; gap: 9px; margin-top: 12px; border: 0; border-radius: 10px; color: #fff; background: var(--brand); font-weight: 730; transition: background .15s, transform .15s; }
+    .copy-button:hover:not(:disabled) { background: var(--brand-dark); transform: translateY(-1px); }
+    .copy-button:disabled { cursor: not-allowed; opacity: .46; }
+    .copy-status { min-height: 18px; margin: 9px 0 0; color: var(--brand); font-size: 12px; text-align: center; }
+    .note { display: flex; gap: 10px; margin: 16px 2px 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .note strong { color: #4b5149; }
+    .footer { margin-top: 22px; color: #858980; font-size: 11px; text-align: center; }
+    @media (max-width: 480px) {
+      .page { padding-top: 28px; }
+      .masthead { margin-bottom: 30px; }
+      .caption-hint { max-width: 135px; text-align: right; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <div class="mark" aria-hidden="true">D</div>
+      <div>
+        <p class="brand-name">Dito Mabibili</p>
+        <p class="brand-note">Your links, ready to share</p>
+      </div>
+    </header>
+
+    <p class="eyebrow">Caption maker</p>
+    <h1>One caption.<br>Three easy links.</h1>
+    <p class="intro">Add your product links and TikTok post. Copy a tidy shopping caption in one tap.</p>
+
+    <section class="card" aria-labelledby="form-title">
+      <h2 class="card-title" id="form-title">Add your links</h2>
+      <p class="card-hint">Add your Lazada and Shopee links, plus separate TikTok video and product-post links.</p>
+
+      <form id="links-form" novalidate>
+        <div class="field">
+          <div class="label-row">
+            <label for="lazada">Lazada link</label>
+            <span class="platform">Product page</span>
+          </div>
+          <input id="lazada" name="lazada" type="url" inputmode="url" autocomplete="url" placeholder="https://www.lazada.com.ph/..." aria-describedby="lazada-error">
+          <p class="field-error" id="lazada-error" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <div class="label-row">
+            <label for="shopee">Shopee link</label>
+            <span class="platform">Product page</span>
+          </div>
+          <input id="shopee" name="shopee" type="url" inputmode="url" autocomplete="url" placeholder="https://shopee.ph/..." aria-describedby="shopee-error">
+          <p class="field-error" id="shopee-error" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <div class="label-row">
+            <label for="tiktokVideo">TikTok video link</label>
+            <span class="platform">Video reference only</span>
+          </div>
+          <input id="tiktokVideo" name="tiktokVideo" type="url" inputmode="url" autocomplete="url" placeholder="https://www.tiktok.com/@.../video/..." aria-describedby="tiktokVideo-error">
+          <p class="field-error" id="tiktokVideo-error" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <div class="label-row">
+            <label for="tiktokProduct">TikTok product-post link</label>
+            <span class="platform">Included in caption</span>
+          </div>
+          <input id="tiktokProduct" name="tiktokProduct" type="url" inputmode="url" autocomplete="url" placeholder="https://www.tiktok.com/@.../video/..." aria-describedby="tiktokProduct-error">
+          <p class="field-error" id="tiktokProduct-error" aria-live="polite"></p>
+        </div>
+
+        <div class="caption-block">
+          <div class="caption-heading">
+            <label for="caption">Your caption</label>
+            <span class="caption-hint">Only valid links are included</span>
+          </div>
+          <textarea id="caption" readonly aria-label="Generated caption"></textarea>
+          <button class="copy-button" id="copy-button" type="button" disabled>
+            <span aria-hidden="true">▢</span>
+            <span>Copy caption</span>
+          </button>
+          <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+
+    <p class="note"><span aria-hidden="true">ⓘ</span><span><strong>About your video:</strong> The video link is kept separate and is not included in the caption. This app does not download or extract videos or remove watermarks. Use your original video file or TikTok’s official download options where available.</span></p>
+    <footer class="footer">Your links stay on this device. Nothing is uploaded.</footer>
+  </main>
+  <script>
+    (() => {
+      const platforms = [
+        { name: "Lazada", id: "lazada", hosts: ["lazada.com", "lazada.com.ph", "lazada.com.my", "lazada.sg", "lazada.co.id", "lazada.co.th", "lazada.vn"] },
+        { name: "Shopee", id: "shopee", hosts: ["shopee.ph", "shopee.sg", "shopee.com.my", "shopee.co.id", "shopee.co.th", "shopee.vn", "shopee.tw", "shopee.com.br", "shopee.com.mx", "shopee.cl", "shopee.co", "shopee.pl", "shope.ee"] },
+        { name: "TikTok video", id: "tiktokVideo", hosts: ["tiktok.com"] },
+        { name: "TikTok product", id: "tiktokProduct", hosts: ["tiktok.com"] }
+      ];
+      const caption = document.querySelector("#caption");
+      const copyButton = document.querySelector("#copy-button");
+      const copyStatus = document.querySelector("#copy-status");
+      const fields = platforms.map((platform) => ({
+        ...platform,
+        input: document.querySelector(`#${platform.id}`),
+        error: document.querySelector(`#${platform.id}-error`)
+      }));
+
+      function normalizedUrl(value) {
+        const trimmed = value.trim();
+        if (!trimmed) return null;
+        try {
+          return new URL(/^[a-z][a-z\d+.-]*:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+        } catch {
+          return null;
+        }
+      }
+
+      function isAllowedHost(hostname, platform) {
+        const host = hostname.toLowerCase().replace(/\.$/, "");
+        return platform.hosts.some((domain) => host === domain || host.endsWith(`.${domain}`));
+      }
+
+      function update() {
+        const links = {};
+        for (const field of fields) {
+          const value = field.input.value.trim();
+          const url = normalizedUrl(value);
+          let message = "";
+          if (value && (!url || url.protocol !== "https:" || !isAllowedHost(url.hostname, field))) {
+            message = `Enter a valid HTTPS ${field.name} link.`;
+          } else if (value) {
+            links[field.id] = url.href;
+          }
+          field.error.textContent = message;
+          field.input.setAttribute("aria-invalid", message ? "true" : "false");
+        }
+
+        const captionLinks = [
+          links.lazada ? `Lazada: ${links.lazada}` : "",
+          links.shopee ? `Shopee: ${links.shopee}` : "",
+          links.tiktokProduct ? `Tiktok: ${links.tiktokProduct}` : ""
+        ].filter(Boolean);
+        caption.value = ["Dito mabibili:", ...(captionLinks.length ? ["", ...captionLinks] : [])].join("\n");
+        copyButton.disabled = captionLinks.length === 0;
+        copyStatus.textContent = "";
+        return captionLinks.length > 0;
+      }
+
+      async function copyCaption() {
+        if (!update()) return;
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(caption.value);
+          } else {
+            caption.focus();
+            caption.select();
+            const copied = document.execCommand("copy");
+            caption.setSelectionRange(0, 0);
+            if (!copied) throw new Error("Clipboard copy was not available.");
+          }
+          copyStatus.textContent = "Caption copied to your clipboard.";
+        } catch (error) {
+          copyStatus.textContent = "Could not copy automatically. Select and copy the caption above.";
+          caption.focus();
+          caption.select();
+        }
+      }
+
+      for (const field of fields) field.input.addEventListener("input", update);
+      copyButton.addEventListener("click", copyCaption);
+      update();
+
+      if ("serviceWorker" in navigator && location.protocol !== "file:") {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./service-worker.js").catch((error) => {
+            console.error("Could not register the offline app worker.", error);
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
